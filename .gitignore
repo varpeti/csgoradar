@@ -1,2 +1,5 @@
 bin/
 csgo.h
+csgo/
+reverse/
+linker

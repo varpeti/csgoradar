@@ -1,3 +1,8 @@
+/*
+**  This code was copied from https://github.com/bluuman/jwaim
+**  and sightly modified.
+*/
+
 #ifndef __REMOTE_H_
 #define __REMOTE_H_
 

@@ -1,3 +1,8 @@
+/*
+**  This code was copied from https://github.com/bluuman/jwaim
+**  and sightly modified.
+*/
+
 #include "remote.h"
 
 #define FINDPATTERN_CHUNKSIZE 0x1000
