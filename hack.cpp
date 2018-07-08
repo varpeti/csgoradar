@@ -66,6 +66,15 @@ bool Hack::init()
     m_addressIsConnected = handle.GetCallAddress( (void *)(foundIsConnectedMov + 9) ) + 1;
     printhex("m_addressIsConnected: ",m_addressIsConnected);
 
+    //*/// debug
+
+    remote::MapModuleMemoryRegion *region = NULL;
+    
+    handle.ParseMaps();
+
+    region = handle.GetRegionOfAddress((void*)m_addressIsConnected);
+    region->print(handle,(void*)m_addressIsConnected);
+
     //*/// ok
 
     return true;
