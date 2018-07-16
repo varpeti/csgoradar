@@ -9,7 +9,7 @@
 #define endit(s) {std::cout << s << "\n";  return false;}
 #define printa(a) {std::cout << a << "\n";}
 #define printab(a,b) {std::cout << a << b <<"\n";}
-#define printhex(a,b) {std::cout << a << std::hex << b <<"\n";}
+#define printhex(a,b) {std::cout << a << std::hex << b << std::dec << "\n";}
 
 struct EntityInfo
 {

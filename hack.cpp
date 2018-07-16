@@ -32,7 +32,7 @@ bool Hack::init()
 
         for (auto region : handle.regions)
         {
-            if (region.filename.compare("client_client.so") == 0 && region.executable)
+            if (region.filename.compare("client_panorama_client.so") == 0 && region.executable)
             {
                 client = region;
             }
@@ -42,7 +42,8 @@ bool Hack::init()
             }
         }
 
-        usleep(500);
+        usleep(1);
+        printa("region");
     }
 
     printhex("client.start: ",client.start);
@@ -66,7 +67,7 @@ bool Hack::init()
     m_addressIsConnected = handle.GetCallAddress( (void *)(foundIsConnectedMov + 9) ) + 1;
     printhex("m_addressIsConnected: ",m_addressIsConnected);
 
-    //*/// debug
+    /*/// debug
 
     remote::MapModuleMemoryRegion *region = NULL;
     
@@ -87,9 +88,12 @@ bool Hack::isOK()
 
 void Hack::chConnected()
 {
+    /* m_addressIsConnected is outdated
     uint8_t b = 0;
     handle.Read((void *)m_addressIsConnected, &b, sizeof(b));
     isConnected = (b == 1);
+    */
+    isConnected = true;
 }
 
 bool Hack::players()
@@ -107,23 +111,27 @@ bool Hack::players()
 
     //local player
     unsigned long localPlayer = 0;
-    handle.Read((void *)m_addressOfLocalPlayer, &localPlayer, sizeof(localPlayer));
-    Entity local = {};
-    if (localPlayer != 0)
+    handle.Read((void*) m_addressOfLocalPlayer, &localPlayer, sizeof(localPlayer));
+    Entity local;
+    if (localPlayer != 0) 
     {
         handle.Read((void *)(unsigned long)localPlayer, &local, sizeof(local));
     }
 
     //CGlowObjectManager
     CGlowObjectManager manager;
-    if (!handle.Read((void *)m_addressOfGlowPointer, &manager, sizeof(manager)))
+    if (!handle.Read((void*) m_addressOfGlowPointer, &manager, sizeof(manager))) 
     {
         endit("Failed to read glowClassAddress");
     }
 
-    //g_glow    
+    //g_glow
     size_t count = manager.m_GlowObjectDefinitions.Count;
-    void *data_ptr = (void *)manager.m_GlowObjectDefinitions.DataPtr;
+    void *data_ptr = (void *) manager.m_GlowObjectDefinitions.DataPtr;
+
+    printab("count ", count);
+    printhex("data_ptr ",data_ptr);
+    
     if (!handle.Read(data_ptr, g_glow, sizeof(GlowObjectDefinition_t) * count))
     {
         endit("Failed to read m_GlowObjectDefinitions");
@@ -135,14 +143,20 @@ bool Hack::players()
         if (g_glow[i].m_pEntity != NULL)
         {
             Entity ent;
-            if (handle.Read(g_glow[i].m_pEntity, &ent, sizeof(ent))) if ((ent.m_iTeamNum == 2 || ent.m_iTeamNum == 3) &&  (ent.ID <= 64 && ent.ID > 0))
+            printab("ent.m_iTeamNum ",ent.m_iTeamNum);
+            printab("ent.ID ",ent.ID);
+
+            if (handle.Read(g_glow[i].m_pEntity, &ent, sizeof(ent)))
             {
-                EntityInfo e;
-                e.entity = ent;
-                e.entityPtr = g_glow[i].m_pEntity;
-                e.isLocalPlayer = false;
-                entitiesLocal[ent.ID] = e;
-            }
+                if ((ent.m_iTeamNum == 2 || ent.m_iTeamNum == 3) &&  (ent.ID <= 64 && ent.ID > 0))
+                {
+                    EntityInfo e;
+                    e.entity = ent;
+                    e.entityPtr = g_glow[i].m_pEntity;
+                    e.isLocalPlayer = false;
+                    entitiesLocal[ent.ID] = e;
+                }
+            } 
         }
     }
 

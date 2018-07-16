@@ -210,6 +210,18 @@ namespace remote {
 		return (process_vm_readv(pid, local, 1, remote, 1, 0) == size);
 	}
 
+    unsigned long Handle::GetAbsoluteAddress(void* address, int offset, int size) 
+    {
+        int code = 0;
+
+        if (Read((char*) ((unsigned long) address + offset), &code, sizeof(unsigned int))) 
+        {
+            return code + (unsigned long) address + size;
+        }
+
+        return 0;
+    }
+
 	unsigned long Handle::GetCallAddress(void* address) {
 		int code = 0;
 		if (Read((char*) address, &code, sizeof(unsigned int))) {
@@ -232,7 +244,6 @@ namespace remote {
 
         return 0;
     }
-
 
 	MapModuleMemoryRegion* Handle::GetRegionOfAddress(void* address) {
 		for (size_t i = 0; i < regions.size(); i++) {

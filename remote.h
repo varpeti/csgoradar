@@ -72,6 +72,7 @@ namespace remote {
 		bool Write(void* address, void* buffer, size_t size);
 		bool Read(void* address, void* buffer, size_t size);
 
+        unsigned long GetAbsoluteAddress(void* address, int offset, int size);
 		unsigned long GetCallAddress(void* address);
         unsigned long GetShortJmpAddress(void* address);
 
