@@ -33,6 +33,7 @@ bool Hack::init()
         for (auto region : handle.regions)
         {
             if (region.filename.compare("client_panorama_client.so") == 0 && region.executable)
+            //if (region.filename.compare("client_client.so") == 0 && region.executable)
             {
                 client = region;
             }
@@ -53,18 +54,18 @@ bool Hack::init()
 
     // m_addressOfGlowPointer
     unsigned long foundGlowPointerCall = (long)client.find(handle,patternGlowPointerCall);
-    unsigned long call = handle.GetCallAddress( (void*)(foundGlowPointerCall+1) );
-    m_addressOfGlowPointer = handle.GetCallAddress( (void *)(call + 0x10) );
+    unsigned long call = handle.GetCallAddress( (void*)(foundGlowPointerCall+glowGlowPointerCall1) );
+    m_addressOfGlowPointer = handle.GetCallAddress( (void *)(call + glowGlowPointerCall2) );
     printhex("m_addressOfGlowPointer: ",m_addressOfGlowPointer);
 
     // m_addressOfLocalPlayer
     unsigned long foundLocalPlayerLea = (long)client.find(handle,patternLocalPlayerLea);
-    m_addressOfLocalPlayer = handle.GetCallAddress( (void *)(foundLocalPlayerLea + 8) );
+    m_addressOfLocalPlayer = handle.GetCallAddress( (void *)(foundLocalPlayerLea + offsetLocalPlayer) );
     printhex("m_addressOfLocalPlayer: ",m_addressOfLocalPlayer);
 
     // m_addressIsConnected
     unsigned long foundIsConnectedMov = (long)engine.find(handle,patternIsConnectedMov);
-    m_addressIsConnected = handle.GetCallAddress( (void *)(foundIsConnectedMov + 9) ) + 1;
+    m_addressIsConnected = handle.GetCallAddress( (void *)(foundIsConnectedMov + offsetIsConnectedMov) ) + 0x1;
     printhex("m_addressIsConnected: ",m_addressIsConnected);
 
     /*/// debug
@@ -88,12 +89,9 @@ bool Hack::isOK()
 
 void Hack::chConnected()
 {
-    /* m_addressIsConnected is outdated
     uint8_t b = 0;
     handle.Read((void *)m_addressIsConnected, &b, sizeof(b));
     isConnected = (b == 1);
-    */
-    isConnected = true;
 }
 
 bool Hack::players()
@@ -129,8 +127,6 @@ bool Hack::players()
     size_t count = manager.m_GlowObjectDefinitions.Count;
     void *data_ptr = (void *) manager.m_GlowObjectDefinitions.DataPtr;
 
-    printab("count ", count);
-    printhex("data_ptr ",data_ptr);
     
     if (!handle.Read(data_ptr, g_glow, sizeof(GlowObjectDefinition_t) * count))
     {
@@ -143,8 +139,6 @@ bool Hack::players()
         if (g_glow[i].m_pEntity != NULL)
         {
             Entity ent;
-            printab("ent.m_iTeamNum ",ent.m_iTeamNum);
-            printab("ent.ID ",ent.ID);
 
             if (handle.Read(g_glow[i].m_pEntity, &ent, sizeof(ent)))
             {
